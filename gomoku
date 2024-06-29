@@ -1,0 +1,213 @@
+/*
+@title: gomoku
+@author: sarah
+@tags: []
+@addedOn: 2024-6-28
+*/
+
+const frame = "f"
+const black = "b"
+const white = "w"
+const select = "s"
+
+setLegend(
+  [frame, bitmap`
+.......CC.......
+.......CC.......
+.......CC.......
+.......CC.......
+.......CC.......
+.......CC.......
+.......CC.......
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+.......CC.......
+.......CC.......
+.......CC.......
+.......CC.......
+.......CC.......
+.......CC.......
+.......CC.......` ], 
+  [white, bitmap`
+....00000000....
+...0222222220...
+..022222222220..
+.02222222222220.
+0222222222222220
+0222222222222220
+0222222222222220
+0222222222222220
+0222222222222220
+0222222222222220
+0222222222222220
+0222222222222220
+.02222222222220.
+..022222222220..
+...0222222220...
+....00000000....`],
+  [black, bitmap`
+....00000000....
+...0000000000...
+..000000000000..
+.00000000000000.
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+0000000000000000
+.00000000000000.
+..000000000000..
+...0000000000...
+....00000000....`],
+  [select, bitmap`
+3333333333333333
+3..............3
+3..............3
+3..............3
+3..............3
+3..............3
+3..............3
+3..............3
+3..............3
+3..............3
+3..............3
+3..............3
+3..............3
+3..............3
+3..............3
+3333333333333333`]
+);
+setMap(  map`
+fffffffffffff
+fffffffffffff
+fffffffffffff
+fffffffffffff
+fffffffffffff
+fffffffffffff
+fffffffffffff
+fffffffffffff
+fffffffffffff
+fffffffffffff
+fffffffffffff
+fffffffffffff
+fffffffffffff`);
+
+addSprite(6, 6, select);
+let player = getFirst(select);
+
+
+let selection = [6,6];
+let board = [
+  [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+  [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+  [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+  [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+  [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+  [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+  [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+  [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+  [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+  [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+  [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+  [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+  [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+];
+let won = false;
+let turn = 0;
+
+const drawBoard = () => {
+  for (let x = 0; x < 12; x++) {
+    for (let y = 0; y < 12; y++) {
+      clearTile(x, y);
+      addSprite(x, y, frame);
+      if (board[x][y] == 0) {
+        clearTile(x,y);
+        addSprite(x,y,black);
+        
+      } 
+      else if (board[x][y] == 1) {
+        clearTile(x,y)
+        addSprite(x,y,white);
+      };
+    };
+  };
+  addSprite(6, 6, select);
+  player = getFirst(select);
+  addText("drawing", {x:10, y:14, color: color`3`});
+};
+
+
+
+/*
+setSolids([])
+
+let level = 0
+const levels = [
+]
+
+setMap(levels[level])
+
+setPushables({
+  [ player ]: []
+})
+*/ 
+
+const nextTurn = () => {
+  turn += 1;
+  turn = turn % 2;
+  drawBoard();
+}
+
+const playTurn = () => {
+  if (board[selection[0]][selection[1]] == -1) {
+      board[selection[0]][selection[1]] = turn;
+    drawBoard();
+    
+    //break;
+  };
+}
+
+onInput("s", () => {
+  selection[1]++;
+})
+
+onInput("a", () => {
+  selection[0]--;
+});
+
+onInput("d", () => {
+  selection[0]++;
+});
+
+onInput("w", () => {
+  selection[1]--;
+});
+
+onInput("j", () => {
+  if (!won) {
+    playTurn();
+    nextTurn();
+  }
+});
+
+afterInput(() => {
+  if (!won) {
+    if (selection[0] < 0) {
+      selection[0] = 12;
+    } else if (selection[0] > 12) {
+      selection[0] = 0;
+    }
+    if (selection[1] < 0) {
+      selection[1] = 12;
+    } else if (selection[1] > 12) {
+      selection[1] = 0;
+    }
+  };
+  
+  player.x = selection[0];
+  player.y = selection[1];
+  addText("position:" + player.x +"," + player.y);
+})
